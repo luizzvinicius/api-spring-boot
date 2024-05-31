@@ -3,6 +3,7 @@ package luiz.api.products.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -10,7 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "produtos")
-public class Product implements Serializable {
+public class Product extends RepresentationModel<Product> implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 

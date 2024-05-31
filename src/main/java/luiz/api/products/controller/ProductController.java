@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 public class ProductController {
     // Onde recebe as solicitações do cliente
@@ -20,9 +23,15 @@ public class ProductController {
     ProductRepository productRepository;
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<Object> getAllProducts() {
         List<Product> products = productRepository.findAll();
-        System.out.println(products);
+        if (products.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body("{'message': 'no products avaliable'}");
+        }
+        products.forEach(p -> {
+            var id = p.getId();
+            p.add(linkTo(methodOn(ProductController.class).getOneProduct(id)).withSelfRel());
+        });
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
 
@@ -36,11 +45,13 @@ public class ProductController {
 
     @GetMapping("/product/{id}")
     public ResponseEntity<Object> getOneProduct(@PathVariable(value = "id") UUID id) {
-        Optional<Product> product = productRepository.findById(id);
-        if (product.isEmpty()) {
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(product.get());
+        var product = productOptional.get();
+        product.add(linkTo(methodOn(ProductController.class).getAllProducts()).withRel("All products"));
+        return ResponseEntity.status(HttpStatus.OK).body(product);
     }
 
     @PutMapping("/products/{id}")
