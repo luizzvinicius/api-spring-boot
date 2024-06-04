@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.http.HttpStatus;
@@ -19,8 +18,12 @@ import luiz.api.products.repository.ProductRepository;
 @RestController
 public class ProductController {
     // Onde recebe as solicitações do cliente
-    @Autowired
-    ProductRepository productRepository;
+    // autowired não recomendado
+    private final ProductRepository productRepository;
+
+    public ProductController(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
     @GetMapping("/products")
     public ResponseEntity<Object> getAllProducts() {
