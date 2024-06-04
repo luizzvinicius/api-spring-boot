@@ -1,20 +1,20 @@
 package luiz.api.products.controller;
 
-import jakarta.validation.Valid;
-import luiz.api.products.model.Product;
-import luiz.api.products.repository.ProductRepository;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+import luiz.api.products.model.Product;
+import luiz.api.products.repository.ProductRepository;
 
 @RestController
 public class ProductController {
@@ -39,7 +39,6 @@ public class ProductController {
     public ResponseEntity<Product> saveProduct(@RequestBody @Valid Product.ProdutoDTO produto) {
         var p = new Product();
         BeanUtils.copyProperties(produto, p);
-        System.out.println(produto);
         return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(p));
     }
 
