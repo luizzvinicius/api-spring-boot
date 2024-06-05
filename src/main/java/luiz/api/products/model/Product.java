@@ -4,22 +4,18 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "produtos")
+@Table(name = "produtos", uniqueConstraints = {@UniqueConstraint(name= "Product Duplicated names", columnNames = {"name"})})
 public class Product extends RepresentationModel<Product> implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
