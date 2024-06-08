@@ -16,6 +16,7 @@ import luiz.api.products.model.Product;
 import luiz.api.products.repository.ProductRepository;
 
 @RestController
+@RequestMapping("/products")
 public class ProductController {
     // Onde recebe as solicitações do cliente
     // autowired não recomendado
@@ -25,7 +26,7 @@ public class ProductController {
         this.productRepository = productRepository;
     }
 
-    @GetMapping("/products")
+    @GetMapping
     public ResponseEntity<Object> getAllProducts() {
         List<Product> products = productRepository.findAll();
         if (products.isEmpty()) {
@@ -38,14 +39,14 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
 
-    @PostMapping("/product")
+    @PostMapping
     public ResponseEntity<Product> saveProduct(@RequestBody @Valid Product.ProdutoDTO produto) {
         var p = new Product();
         BeanUtils.copyProperties(produto, p);
         return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(p));
     }
 
-    @GetMapping("/product/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Object> getOneProduct(@PathVariable(value = "id") UUID id) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isEmpty()) {
@@ -56,7 +57,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(product);
     }
 
-    @PutMapping("/products/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Object> updateProduct(@PathVariable(value = "id") UUID id, @RequestBody @Valid Product.ProdutoDTO produtoClient) {
         Optional<Product> p = productRepository.findById(id);
         if (p.isEmpty()) {
@@ -67,7 +68,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(prod));
     }
 
-    @DeleteMapping("/products/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable(value = "id") UUID id) {
         Optional<Product> p = productRepository.findById(id);
         if (p.isEmpty()) {
