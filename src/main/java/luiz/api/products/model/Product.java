@@ -25,6 +25,7 @@ public class Product extends RepresentationModel<Product> implements Serializabl
     private UUID id;
     private String name;
     private Double price;
+    private Double imposto;
 
     public record ProdutoDTO(@NotBlank String name, @NotNull Double price) { }
 }

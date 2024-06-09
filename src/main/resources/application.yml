@@ -5,7 +5,14 @@ spring:
     username: ${user}
     password: ${password}
   jpa:
+    properties:
+      jakarta:
+        persistence:
+          schema-generation:
+            scripts:
+              action: create
+              create-target: src/main/resources/db/migration/schema.sql
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate # validate: no changes update: append
     database: postgresql
     show-sql: false
