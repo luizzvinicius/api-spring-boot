@@ -49,7 +49,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getOneProduct(@PathVariable(value = "id") UUID id) {
+    public ResponseEntity<Object> getOneProduct(@PathVariable UUID id) /*Consegue identificar pelo nome*/ {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isEmpty()) {
             throw new EntityNotFoundException();
@@ -61,7 +61,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<Object> updateProduct(@PathVariable(value = "id") UUID id, @RequestBody @Valid Product.ProdutoDTO produtoClient) {
+    public ResponseEntity<Object> updateProduct(@PathVariable UUID id, @RequestBody @Valid Product.ProdutoDTO produtoClient) {
         Optional<Product> p = productRepository.findById(id);
         if (p.isEmpty()) {
             throw new EntityNotFoundException();
@@ -73,7 +73,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<String> deleteProduct(@PathVariable(value = "id") UUID id) {
+    public ResponseEntity<String> deleteProduct(@PathVariable UUID id) {
         Optional<Product> p = productRepository.findById(id);
         if (p.isEmpty()) {
             throw new EntityNotFoundException();
