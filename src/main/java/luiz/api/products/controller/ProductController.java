@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import jakarta.persistence.EntityNotFoundException;
+import luiz.api.products.exceptions.RecordNotFoundExt;
 import org.springframework.beans.BeanUtils;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -32,7 +32,7 @@ public class ProductController {
     public ResponseEntity<Object> getAllProducts() {
         List<Product> products = productRepository.findAll();
         if (products.isEmpty()) {
-            throw new EntityNotFoundException();
+            throw new RecordNotFoundExt("Product");
         }
         products.forEach(p -> {
             var id = p.getId();
@@ -52,7 +52,7 @@ public class ProductController {
     public ResponseEntity<Object> getOneProduct(@PathVariable UUID id) /*Consegue identificar pelo nome*/ {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isEmpty()) {
-            throw new EntityNotFoundException();
+            throw new RecordNotFoundExt("Product with id " + id);
         }
         var product = productOptional.get();
         product.add(linkTo(methodOn(ProductController.class).getAllProducts()).withRel("All products"));
@@ -64,7 +64,7 @@ public class ProductController {
     public ResponseEntity<Object> updateProduct(@PathVariable UUID id, @RequestBody @Valid Product.ProdutoDTO produtoClient) {
         Optional<Product> p = productRepository.findById(id);
         if (p.isEmpty()) {
-            throw new EntityNotFoundException();
+            throw new RecordNotFoundExt("Product with id " + id);
         }
         var prod = p.get();
         BeanUtils.copyProperties(produtoClient, prod);
@@ -73,12 +73,9 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<String> deleteProduct(@PathVariable UUID id) {
-        Optional<Product> p = productRepository.findById(id);
-        if (p.isEmpty()) {
-            throw new EntityNotFoundException();
-        }
-        productRepository.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Product deleted");
+    public void deleteProduct(@PathVariable UUID id) {
+        productRepository.delete(
+                productRepository.findById(id).orElseThrow(() -> new RecordNotFoundExt("Product"))
+        );
     }
 }
