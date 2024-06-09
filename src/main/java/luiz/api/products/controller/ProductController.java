@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -30,7 +32,7 @@ public class ProductController {
     public ResponseEntity<Object> getAllProducts() {
         List<Product> products = productRepository.findAll();
         if (products.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.OK).body("{'message': 'no products avaliable'}");
+            throw new EntityNotFoundException();
         }
         products.forEach(p -> {
             var id = p.getId();
@@ -50,7 +52,7 @@ public class ProductController {
     public ResponseEntity<Object> getOneProduct(@PathVariable(value = "id") UUID id) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+            throw new EntityNotFoundException();
         }
         var product = productOptional.get();
         product.add(linkTo(methodOn(ProductController.class).getAllProducts()).withRel("All products"));
@@ -58,10 +60,11 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<Object> updateProduct(@PathVariable(value = "id") UUID id, @RequestBody @Valid Product.ProdutoDTO produtoClient) {
         Optional<Product> p = productRepository.findById(id);
         if (p.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+            throw new EntityNotFoundException();
         }
         var prod = p.get();
         BeanUtils.copyProperties(produtoClient, prod);
@@ -69,10 +72,11 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<String> deleteProduct(@PathVariable(value = "id") UUID id) {
         Optional<Product> p = productRepository.findById(id);
         if (p.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+            throw new EntityNotFoundException();
         }
         productRepository.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).body("Product deleted");
