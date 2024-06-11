@@ -20,8 +20,6 @@ import luiz.api.products.repository.ProductRepository;
 @RestController
 @RequestMapping("/products")
 public class ProductController {
-    // Onde recebe as solicitações do cliente
-    // autowired não recomendado
     private final ProductRepository productRepository;
 
     public ProductController(ProductRepository productRepository) {
@@ -42,33 +40,33 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Product> saveProduct(@RequestBody @Valid Product.ProdutoDTO produto) {
-        var p = new Product();
-        BeanUtils.copyProperties(produto, p);
-        return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(p));
+    public ResponseEntity<Product> saveProduct(@RequestBody @Valid Product.ProdutoDTO clientproduct) {
+        var product = new Product();
+        BeanUtils.copyProperties(clientproduct, product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(product));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getOneProduct(@PathVariable UUID id) /*Consegue identificar pelo nome*/ {
+    public ResponseEntity<Product> getOneProduct(@PathVariable UUID id) /*Consegue identificar pelo nome*/ {
+        Optional<Product> productOptional = productRepository.findById(id);
+        return productOptional
+                .map(product -> {
+                    product.add(linkTo(methodOn(ProductController.class).getAllProducts()).withRel("All products"));
+                    return ResponseEntity.status(HttpStatus.OK).body(product);
+                })
+                .orElseThrow(() -> new RecordNotFoundExt("Product with id " + id));
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Object> updateProduct(@PathVariable UUID id, @RequestBody @Valid Product.ProdutoDTO clientProduct) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isEmpty()) {
             throw new RecordNotFoundExt("Product with id " + id);
         }
         var product = productOptional.get();
-        product.add(linkTo(methodOn(ProductController.class).getAllProducts()).withRel("All products"));
-        return ResponseEntity.status(HttpStatus.OK).body(product);
-    }
-
-    @PutMapping("/{id}")
-    @Transactional
-    public ResponseEntity<Object> updateProduct(@PathVariable UUID id, @RequestBody @Valid Product.ProdutoDTO produtoClient) {
-        Optional<Product> p = productRepository.findById(id);
-        if (p.isEmpty()) {
-            throw new RecordNotFoundExt("Product with id " + id);
-        }
-        var prod = p.get();
-        BeanUtils.copyProperties(produtoClient, prod);
-        return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(prod));
+        BeanUtils.copyProperties(clientProduct, product);
+        return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(product));
     }
 
     @DeleteMapping("/{id}")
