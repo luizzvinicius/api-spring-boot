@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotBlank;
 import luiz.api.products.exceptions.RecordNotFoundExt;
 import org.springframework.beans.BeanUtils;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -11,12 +12,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import luiz.api.products.model.Product;
 import luiz.api.products.repository.ProductRepository;
 
+@Validated
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -59,7 +62,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<Object> updateProduct(@PathVariable UUID id, @RequestBody @Valid Product.ProdutoDTO clientProduct) {
+    public ResponseEntity<Object> updateProduct(@PathVariable @NotBlank UUID id, @RequestBody @Valid Product.ProdutoDTO clientProduct) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isEmpty()) {
             throw new RecordNotFoundExt("Product with id " + id);
@@ -71,7 +74,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public void deleteProduct(@PathVariable UUID id) {
+    public void deleteProduct(@PathVariable @NotBlank UUID id) {
         productRepository.delete(
                 productRepository.findById(id).orElseThrow(() -> new RecordNotFoundExt("Product"))
         );

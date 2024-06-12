@@ -20,4 +20,7 @@ public class ControllerAdvice {
     public ResponseEntity<String> handleValidationDTOs() {
         return ResponseEntity.badRequest().body("{'error': 'invalid request pattern'}");
     }
+
+    // HttpMessageNotReadableException json errado
+    // DataIntegrityViolationException duplicados
 }

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
@@ -15,7 +16,7 @@ import jakarta.validation.constraints.NotNull;
 @Getter
 @Setter
 @Entity
-@Table(name = "produtos", uniqueConstraints = {@UniqueConstraint(name= "Product Duplicated names", columnNames = {"name"})})
+@Table(name = "products", uniqueConstraints = {@UniqueConstraint(name= "Product Duplicated names", columnNames = {"name"})})
 public class Product extends RepresentationModel<Product> implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -23,9 +24,15 @@ public class Product extends RepresentationModel<Product> implements Serializabl
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-    private String name;
-    private Double price;
-    private Double imposto;
 
-    public record ProdutoDTO(@NotBlank String name, @NotNull Double price) { }
+    @NotBlank
+    @Column(nullable = false)
+    private String name;
+
+    @NotNull
+    @Positive
+    @Column(nullable = false)
+    private Double price;
+
+    public record ProdutoDTO(@NotBlank String name, @NotNull @Positive Double price) { }
 }
