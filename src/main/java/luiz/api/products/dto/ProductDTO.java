@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 import java.util.UUID;
 
 public record ProductDTO(
-        @NotNull UUID id,
+        UUID id,
         @NotBlank String name,
         @NotNull @Positive Double price) {
 }

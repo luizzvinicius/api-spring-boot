@@ -3,6 +3,7 @@ package luiz.api.products.service;
 import jakarta.validation.Valid;
 import luiz.api.products.dto.ProductDTO;
 import luiz.api.products.dto.mapper.ProductMapper;
+import luiz.api.products.enums.ProductStatus;
 import luiz.api.products.exceptions.RecordNotFoundExt;
 import luiz.api.products.model.Product;
 import luiz.api.products.repository.ProductRepository;
@@ -25,7 +26,7 @@ public class ProductService {
     }
 
     public List<ProductDTO> getAllProducts() {
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findAllProductByStatusEquals(ProductStatus.ACTIVE);
         if (products.isEmpty()) {
             throw new RecordNotFoundExt("Product");
         }
@@ -55,6 +56,6 @@ public class ProductService {
 
     @Transactional
     public void deleteProduct(UUID id) {
-       productRepository.delete(productMapper.toEntity(this.getOneProduct(id)));
+        productRepository.updateProductStatusToInativo(id);
     }
 }
