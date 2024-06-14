@@ -2,6 +2,7 @@ package luiz.api.products.enums;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import luiz.api.products.exceptions.InvalidEnumEx;
 
 @Converter(autoApply = true)
 public class ProductStatusConverter implements AttributeConverter<ProductStatus, String> {
@@ -15,7 +16,7 @@ public class ProductStatusConverter implements AttributeConverter<ProductStatus,
         return switch (s) {
             case "ativo" -> ProductStatus.ACTIVE;
             case "inativo" -> ProductStatus.INACTIVE;
-            default -> throw new IllegalArgumentException("Unexpected value for Product status");
+            default -> throw new InvalidEnumEx("ProductStatus", s);
         };
     }
 }

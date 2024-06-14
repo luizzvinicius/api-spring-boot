@@ -49,7 +49,8 @@ public class ProductService {
         var dtoToProduct = productMapper.toEntity(clientProduct);
 
         return productRepository.findById(id).map(product -> {
-            BeanUtils.copyProperties(dtoToProduct, product);
+            // BeanUtils.copyProperties(dtoToProduct, product);
+            product.setPrice(dtoToProduct.getPrice());
             return productMapper.toDTO(productRepository.save(product));
         }).orElseThrow(() -> new RecordNotFoundExt("Product with id " + id));
     }
