@@ -1,13 +1,19 @@
 package luiz.api.products.service;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import luiz.api.products.dto.ProductDTO;
+import luiz.api.products.dto.ProductPageDTO;
 import luiz.api.products.dto.mapper.ProductMapper;
 import luiz.api.products.enums.ProductStatus;
 import luiz.api.products.exceptions.RecordNotFoundExt;
 import luiz.api.products.model.Product;
 import luiz.api.products.repository.ProductRepository;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -25,12 +31,13 @@ public class ProductService {
         this.productMapper = productMapper;
     }
 
-    public List<ProductDTO> getAllProducts() {
-        List<Product> products = productRepository.findAllProductByStatusEquals(ProductStatus.ACTIVE);
-        if (products.isEmpty()) {
+    public ProductPageDTO getAllProducts(@PositiveOrZero int pageNumber, @Positive @Max(100) int qtdProducts) {
+        Page<Product> page = productRepository.findAllProductByStatusEquals(ProductStatus.ACTIVE, PageRequest.of(pageNumber, qtdProducts));
+        if (page.isEmpty()) {
             throw new RecordNotFoundExt("Product");
         }
-        return products.stream().map(productMapper::toDTO).toList();
+        List<ProductDTO> productDTOS = page.get().map(productMapper::toDTO).toList();
+        return new ProductPageDTO(productDTOS, page.getTotalElements(), page.getTotalPages());
     }
 
     // Outro controller pode chamar esse método, por isso é interessante manter a validação

@@ -1,9 +1,12 @@
 package luiz.api.products.controller;
 
-import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import luiz.api.products.dto.ProductDTO;
+import luiz.api.products.dto.ProductPageDTO;
 import luiz.api.products.dto.mapper.ProductMapper;
 import luiz.api.products.service.ProductService;
 import org.springframework.http.HttpStatus;
@@ -26,9 +29,10 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
+    public ResponseEntity<ProductPageDTO> getAllProducts(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
+                                                         @RequestParam(defaultValue = "10") @Positive @Max(100) int qtdProducts) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(productService.getAllProducts());
+                .body(productService.getAllProducts(page, qtdProducts));
     }
 
     @PostMapping
