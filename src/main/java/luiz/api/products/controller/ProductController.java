@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import luiz.api.products.dto.ProductDTO;
 import luiz.api.products.dto.ProductPageDTO;
-import luiz.api.products.dto.mapper.ProductMapper;
 import luiz.api.products.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +20,9 @@ import jakarta.validation.Valid;
 @RequestMapping("/products")
 public class ProductController {
     private final ProductService productService;
-    private final ProductMapper productMapper;
 
-    public ProductController(ProductService productService, ProductMapper productMapper) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
-        this.productMapper = productMapper;
     }
 
     @GetMapping
@@ -37,9 +34,8 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ProductDTO> saveProduct(@RequestBody @Valid ProductDTO clientproduct) {
-        var product = productMapper.toEntity(clientproduct);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(productService.saveProduct(product));
+                .body(productService.saveProduct(clientproduct));
     }
 
     @GetMapping("/{id}")

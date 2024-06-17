@@ -41,8 +41,8 @@ public class ProductService {
     }
 
     // Outro controller pode chamar esse método, por isso é interessante manter a validação
-    public ProductDTO saveProduct(@Valid Product product) {
-        return productMapper.toDTO(productRepository.save(product));
+    public ProductDTO saveProduct(@Valid ProductDTO product) {
+        return productMapper.toDTO(productRepository.save(productMapper.toEntity(product)));
     }
 
     public ProductDTO getOneProduct(UUID id) {
