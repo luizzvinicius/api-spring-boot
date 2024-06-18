@@ -21,7 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import java.util.*;
 
 @Service
-@Validated
+@Validated // validações do pathvariable funcionarem
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
