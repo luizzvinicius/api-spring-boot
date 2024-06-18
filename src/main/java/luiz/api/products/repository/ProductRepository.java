@@ -9,12 +9,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID> {
-    Product findProductByName(String name);
+    Optional<Product> findProductByName(String name);
     Page<Product> findAllProductByStatusEquals(ProductStatus s, Pageable p);
+
     @Modifying
     @Query(value = "UPDATE products SET status = 'inativo' WHERE id = ?1", nativeQuery = true)
     Integer updateProductStatusToInativo(UUID id);
