@@ -1,7 +1,6 @@
 package luiz.api.products.controller;
 
-import java.util.UUID;
-
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -13,10 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @Validated
+@CrossOrigin(origins = "http://localhost:3001", maxAge = 3600)
 @RequestMapping("/products")
 public class ProductController {
     private final ProductService productService;
@@ -27,7 +27,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<ProductPageDTO> getAllProducts(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
-                                                         @RequestParam(defaultValue = "10") @Positive @Max(100) int qtdProducts) {
+                                                         @RequestParam(defaultValue = "20") @Positive @Max(100) int qtdProducts) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.getAllProducts(page, qtdProducts));
     }

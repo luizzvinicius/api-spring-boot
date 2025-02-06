@@ -8,7 +8,7 @@ import luiz.api.products.exceptions.InvalidEnumEx;
 public class ProductStatusConverter implements AttributeConverter<ProductStatus, String> {
     @Override
     public String convertToDatabaseColumn(ProductStatus productStatus) {
-        return productStatus.getValue();
+        return productStatus.toString();
     }
 
     @Override

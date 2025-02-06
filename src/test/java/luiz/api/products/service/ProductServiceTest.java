@@ -39,8 +39,8 @@ class ProductServiceTest {
 
     @BeforeEach
     void init() {
-       productDTO = new ProductDTO(UUID.randomUUID(), "teste Service", 1690d);
-       product = new Product(productDTO.id(), "teste Service", 1690d, ProductStatus.ACTIVE);
+        productDTO = new ProductDTO(UUID.randomUUID(), "teste Service", 1690d);
+        product = new Product(productDTO.id(), "teste Service", 1690d, ProductStatus.ACTIVE);
     }
 
     @Test

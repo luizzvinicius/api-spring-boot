@@ -1,10 +1,8 @@
 package luiz.api.products.model;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.UUID;
-
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,15 +12,16 @@ import luiz.api.products.enums.ProductStatus;
 import luiz.api.products.enums.ProductStatusConverter;
 import org.springframework.hateoas.RepresentationModel;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "products", uniqueConstraints = {@UniqueConstraint(name= "Product Duplicated names", columnNames = {"name"})})
+@Table(name = "products", uniqueConstraints = {@UniqueConstraint(name = "Product Duplicated names", columnNames = {"name"})})
 // @SQLDelete() sql padrão para todas as chamadas delete
 public class Product extends RepresentationModel<Product> implements Serializable {
     @Serial

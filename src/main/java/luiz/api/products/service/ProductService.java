@@ -11,14 +11,14 @@ import luiz.api.products.enums.ProductStatus;
 import luiz.api.products.exceptions.RecordNotFoundExt;
 import luiz.api.products.model.Product;
 import luiz.api.products.repository.ProductRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Validated // validações do pathvariable funcionarem
@@ -56,7 +56,6 @@ public class ProductService {
         var dtoToProduct = productMapper.toEntity(clientProduct);
 
         return productRepository.findById(id).map(product -> {
-            // BeanUtils.copyProperties(dtoToProduct, product);
             product.setPrice(dtoToProduct.getPrice());
             return productMapper.toDTO(productRepository.save(product));
         }).orElseThrow(() -> new RecordNotFoundExt("Product with id " + id));

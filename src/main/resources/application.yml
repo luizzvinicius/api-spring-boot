@@ -1,0 +1,30 @@
+spring:
+  output:
+    ansi:
+      enabled: always
+  datasource:
+    url: ${db_url}
+    username: ${user}
+    password: ${password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    show-sql: false
+    open-in-view: false
+    #properties:
+    #  jakarta:
+    #    persistence:
+    #      schema-generation:
+    #        scripts:
+    #          action: create
+    #          create-target: src/main/resources/db/migration/schema.sql
+server:
+  error:
+    includeStacktrace: never
+    include-message: never
