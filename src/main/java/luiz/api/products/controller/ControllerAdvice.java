@@ -10,67 +10,78 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @RestControllerAdvice
 public class ControllerAdvice {
     @ExceptionHandler(RecordNotFoundExt.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handle404(RecordNotFoundExt e) {
-        return e.getMessage();
+    public ResponseEntity<String> handle404(RecordNotFoundExt e) {
+        return ResponseEntity.status(NOT_FOUND)
+                .contentType(APPLICATION_JSON)
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(InvalidEnumEx.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handle404(InvalidEnumEx e) {
-        return e.getMessage();
+    public ResponseEntity<String> handle404(InvalidEnumEx e) {
+        return ResponseEntity.status(NOT_FOUND)
+                .contentType(APPLICATION_JSON)
+                .body(e.getMessage());
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class) // nome atributo inválido
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleValidationDTOs(MethodArgumentNotValidException e) {
-        var fields = e.getFieldErrors().stream()
-                .map(error -> String.format("'%s %s'", error.getField(), error.getDefaultMessage()))
-                .reduce("", (acc, error) -> acc + error + ", \n");
-        return String.format("{'error': 'invalid request pattern',%n'message': %s}", fields);
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleJsonValueInvalid(MethodArgumentNotValidException ex) {
+        var fields = ex.getFieldErrors().stream()
+                .map(error -> String.format("%s %s", error.getField(), error.getDefaultMessage()))
+                .reduce("", (c, e) -> c + e + ", \n");
+
+        return ResponseEntity.status(BAD_REQUEST).contentType(APPLICATION_JSON)
+                .body(String.format("{error: \"invalid request pattern\", message: \"%s\"}", fields));
     }
 
     @ExceptionHandler(ConstraintViolationException.class) // url params
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleValidationDTOs(ConstraintViolationException e) {
+    public ResponseEntity<String> handleValidationDTOs(ConstraintViolationException e) {
         var fields = e.getConstraintViolations().stream()
-                .map(error -> String.format("'%s %s'", error.getPropertyPath(), error.getMessage()))
+                .map(error -> String.format("%s %s", error.getPropertyPath(), error.getMessage()))
                 .reduce("", (acc, error) -> acc + error + ", \n");
-        return String.format("{'error': 'invalid request pattern',%n'message': %s}", fields);
+
+        return ResponseEntity.status(BAD_REQUEST).contentType(APPLICATION_JSON)
+                .body(String.format("{error: \"invalid request pattern\", message: \"%s\"}", fields));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class) // JSON value invalid
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String missingAttribute(HttpMessageNotReadableException e) {
-        return String.format("{'error': 'Bad Request',%n'message': %s}", e.getMessage());
+    public ResponseEntity<String> missingAttribute(HttpMessageNotReadableException e) {
+        return ResponseEntity.status(BAD_REQUEST).contentType(APPLICATION_JSON)
+                .body(String.format("{error: \"Bad Request\", message: \"%s\"}", e.getMessage()));
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class) // registro duplicado etc.
-    public ResponseEntity<String> integrityViolation(DataIntegrityViolationException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("{'error': 'Bad Request',\n'message': database error}");
+    // Database
+    @ExceptionHandler(DataIntegrityViolationException.class) // duplicate registers etc
+    public ResponseEntity<String> integrityViolation() {
+        return ResponseEntity.status(BAD_REQUEST).contentType(APPLICATION_JSON)
+                .body("{error: \"Bad Request\", message: \"database error\"}");
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public String methodNotAllowed() {
-        return "{'error': 'Method Not Allowed',\n'message': 'Endpoint with this method is invalid'}";
+    public ResponseEntity<String> methodNotAllowed() {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).contentType(APPLICATION_JSON)
+                .body("{error: \"Method Not Allowed\", message: \"Endpoint with this method is invalid\"}");
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class) // type url param
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+    public ResponseEntity<String> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        var types = new String[]{"Null"};
+        var name = "Null";
         if (e != null) {
-            var types = e.getRequiredType().getName().split("\\.");
-            return String.format("{'error': 'Bad Request',%n'message': '%s should be of type %s'}", e.getName(), types[types.length - 1]);
+            types = e.getRequiredType().getName().split("\\.");
+            name = e.getName();
         }
-        return "{'error': 'Bad request'";
+
+        return ResponseEntity.status(BAD_REQUEST).contentType(APPLICATION_JSON)
+                .body(String.format("{error: \"BAD_REQUEST\", message: \"%s should be of type %s\"", name, types[types.length - 1]));
     }
 }
