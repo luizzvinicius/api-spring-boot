@@ -28,3 +28,7 @@ server:
   error:
     includeStacktrace: never
     include-message: never
+
+aws:
+  bucketName: "api-spring-produto"
+  region: "us-east-1"
