@@ -18,6 +18,12 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     Page<Product> findAllProductByStatusEquals(ProductStatus s, Pageable p);
 
+    boolean existsByName(String name);
+
+    @Modifying
+    @Query(value = "UPDATE products SET images_url = '{}' WHERE id = ?1", nativeQuery = true)
+    void deleteProductImages(UUID id);
+
     @Modifying
     @Query(value = "UPDATE products SET status = 'inativo' WHERE id = ?1", nativeQuery = true)
     Integer updateProductStatusToInativo(UUID id);

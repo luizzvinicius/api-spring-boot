@@ -14,6 +14,7 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -40,7 +41,15 @@ public class Product extends RepresentationModel<Product> implements Serializabl
     @Column(nullable = false)
     private Double price;
 
+    private List<String> imagesUrl;
+
     @Column(length = 10, nullable = false)
     @Convert(converter = ProductStatusConverter.class)
     private ProductStatus status = ProductStatus.ACTIVE;
+
+    public Product(String name, Double price, List<String> imageUrl) {
+        this.name = name;
+        this.price = price;
+        this.imagesUrl = imageUrl;
+    }
 }

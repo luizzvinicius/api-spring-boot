@@ -1,6 +1,7 @@
 package luiz.api.products.controller;
 
 import jakarta.validation.ConstraintViolationException;
+import luiz.api.products.exceptions.CustomIOException;
 import luiz.api.products.exceptions.InvalidEnumEx;
 import luiz.api.products.exceptions.RecordNotFoundExt;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -9,9 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -29,6 +32,27 @@ public class ControllerAdvice {
     @ExceptionHandler(InvalidEnumEx.class)
     public ResponseEntity<String> handle404(InvalidEnumEx e) {
         return ResponseEntity.status(NOT_FOUND)
+                .contentType(APPLICATION_JSON)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<String> handleNullFile(MissingServletRequestPartException e) {
+        return ResponseEntity.status(BAD_REQUEST)
+                .contentType(APPLICATION_JSON)
+                .body(String.format("{error: \"missing miltipart param\", field: \"%s\"}", e.getMessage()));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<String> handleNullFile(MissingServletRequestParameterException e) {
+        return ResponseEntity.status(BAD_REQUEST)
+                .contentType(APPLICATION_JSON)
+                .body(String.format("{error: \"missing miltipart param\", field: \"%s\"}", e.getMessage()));
+    }
+
+    @ExceptionHandler(CustomIOException.class)
+    public ResponseEntity<String> handleNullFile(CustomIOException e) {
+        return ResponseEntity.status(BAD_REQUEST)
                 .contentType(APPLICATION_JSON)
                 .body(e.getMessage());
     }

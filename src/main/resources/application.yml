@@ -24,6 +24,10 @@ spring:
     #        scripts:
     #          action: create
     #          create-target: src/main/resources/db/migration/schema.sql
+  servlet:
+    multipart:
+      max-file-size: "5MB"
+
 server:
   error:
     includeStacktrace: never
