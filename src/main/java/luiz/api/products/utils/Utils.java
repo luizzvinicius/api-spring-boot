@@ -126,7 +126,7 @@ public class Utils {
         localFileNames.removeAll(s3FileNames); // O(n)
         s3FileNames.removeAll(localFileNamesCopy); // O(n)
 
-        localFileNames.forEach(localFile -> System.out.println(uploadImage(localFilesMap.get(localFile), folder))); // O(n)
+        localFileNames.forEach(localFile -> uploadImage(localFilesMap.get(localFile), folder)); // O(n)
 
         deleteFiles(s3FileNames.stream().toList()); // O(n)
 

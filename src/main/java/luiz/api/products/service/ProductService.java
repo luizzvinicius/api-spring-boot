@@ -65,7 +65,6 @@ public class ProductService {
     public ProductDTO updateProduct(UUID id, @Valid UpdateProductDto dto) {
         return productRepository.findById(id).map(p -> {
             List<String> updatedImages = utils.updateFiles(dto.productImages(), dto.name());
-            System.out.println("updated " + updatedImages);
             p.setName(dto.name());
             p.setPrice(dto.price());
             p.setImagesUrl(updatedImages);
