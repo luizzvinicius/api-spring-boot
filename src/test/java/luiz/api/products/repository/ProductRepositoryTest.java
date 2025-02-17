@@ -13,31 +13,37 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 import java.util.UUID;
 
+import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
 class ProductRepositoryTest {
+    private final Product produtoTeste = new Product(
+            "Iphone 15", 2000.0, List.of("https://s3.urlaleatoria")
+    );
+
+    private final UUID fixedUUID = UUID.randomUUID();
     @Autowired
     ProductRepository productRepository;
 
     @Test
     @DisplayName("Must save a product and return it")
     void saveProductSuccessfully() {
-        var product = new Product(UUID.randomUUID(), "Iphone 15", 2000d, ProductStatus.ACTIVE);
-
-        var savedProduct = productRepository.save(product);
+        var savedProduct = productRepository.save(produtoTeste);
 
         assertThat(savedProduct).isNotNull();
-        assertThat(savedProduct.getId()).isExactlyInstanceOf(UUID.class);
+        assertThat(savedProduct.getId()).isEqualTo(produtoTeste.getId());
     }
 
     @Test
     @DisplayName("Must get one Product successfully")
     void findOneProduct() {
-        var product = productRepository.save(new Product(UUID.randomUUID(), "Iphone 14", 2000d, ProductStatus.ACTIVE));
+        productRepository.save(
+                new Product(fixedUUID, "Iphone 14", 2000.0, List.of("https://s3.urlaleatoria"), ProductStatus.ACTIVE)
+        );
 
-        var result = productRepository.findById(product.getId());
+        var result = productRepository.findById(fixedUUID);
 
         assertThat(result).isPresent();
     }
@@ -45,17 +51,18 @@ class ProductRepositoryTest {
     @Test
     @DisplayName("Must not get any Product")
     void findProductNotExists() {
-        var result = productRepository.findById(UUID.randomUUID());
+        var result = productRepository.findById(randomUUID());
         assertThat(result).isEmpty();
     }
 
     @Test
     void getAllProductsWithPagination() {
+        List<String> randomUrl = List.of("https://s3.urlaleatoria");
         List<Product> pageProducts = List.of(
-                new Product(UUID.randomUUID(), "teste Service1", 1690d, ProductStatus.ACTIVE),
-                new Product(UUID.randomUUID(), "teste Service2", 1690d, ProductStatus.INACTIVE),
-                new Product(UUID.randomUUID(), "teste Service3", 1690d, ProductStatus.ACTIVE),
-                new Product(UUID.randomUUID(), "teste Service4", 1980d, ProductStatus.INACTIVE)
+                new Product(randomUUID(), "teste Service1", 1690d, randomUrl, ProductStatus.ACTIVE),
+                new Product(randomUUID(), "teste Service2", 1690d, randomUrl, ProductStatus.INACTIVE),
+                new Product(randomUUID(), "teste Service3", 1690d, randomUrl, ProductStatus.ACTIVE),
+                new Product(randomUUID(), "teste Service4", 1980d, randomUrl, ProductStatus.INACTIVE)
         );
         productRepository.saveAll(pageProducts);
         var pgRequest = PageRequest.of(0, pageProducts.size());
@@ -70,7 +77,7 @@ class ProductRepositoryTest {
     @Test
     @DisplayName("Must set product status to INACTIVE")
     void deleteExistingProduct() {
-        var product = productRepository.save(new Product(UUID.randomUUID(), "Iphone 14", 2000d, ProductStatus.ACTIVE));
+        var product = productRepository.save(produtoTeste);
 
         var deletedProductInteger = productRepository.updateProductStatusToInativo(product.getId());
 
@@ -79,7 +86,7 @@ class ProductRepositoryTest {
 
     @Test
     void deleteNonExistingProduct() {
-        var deletedProductInteger = productRepository.updateProductStatusToInativo(UUID.randomUUID());
+        var deletedProductInteger = productRepository.updateProductStatusToInativo(randomUUID());
         assertThat(deletedProductInteger).isZero();
     }
 }

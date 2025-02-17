@@ -1,19 +1,24 @@
 package luiz.api.products.service;
 
+import luiz.api.products.dto.CreateProductRequestDto;
 import luiz.api.products.dto.ProductDTO;
 import luiz.api.products.dto.mapper.ProductMapper;
 import luiz.api.products.enums.ProductStatus;
 import luiz.api.products.exceptions.RecordNotFoundExt;
 import luiz.api.products.model.Product;
 import luiz.api.products.repository.ProductRepository;
+import luiz.api.products.utils.Utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,56 +30,61 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class) // substitui o openmocks e autoclosesable
 class ProductServiceTest {
+    private final UUID fixedUUID = UUID.randomUUID();
     @Mock
     private ProductRepository repository;
-
     @Mock
     private ProductMapper mapper;
-
+    @Mock
+    private Utils utils;
     @InjectMocks
     private ProductService service;
-
     private Product product;
-    private ProductDTO productDTO;
+    private ProductDTO productDto;
 
     @BeforeEach
     void init() {
-        productDTO = new ProductDTO(UUID.randomUUID(), "teste Service", 1690d);
-        product = new Product(productDTO.id(), "teste Service", 1690d, ProductStatus.ACTIVE);
+        product = new Product(fixedUUID, "Iphone 15", 2000.0, List.of("https://s3.urlaleatoria"), ProductStatus.ACTIVE);
+        productDto = new ProductDTO(fixedUUID, "Iphone 15", 2000.0, List.of("https://s3.urlaleatoria"));
     }
 
     @Test
-    void productService_saveProduct_returnProductDTO() {
-        when(mapper.toEntity(productDTO)).thenReturn(product);
+    void productService_saveProduct_returnProductDto() {
+        MultipartFile mockFile = new MockMultipartFile(
+                "file",
+                "iphone15.png",
+                "iphone15/png",
+                "fake image content".getBytes()
+        );
+
+        when(repository.existsByName(any(String.class))).thenReturn(false);
+        when(utils.uploadImage(any(MultipartFile.class), any(String.class))).thenReturn("https://s3.urlaleatoria");
         when(repository.save(any(Product.class))).thenReturn(product);
-        when(mapper.toDTO(product)).thenReturn(productDTO);
+        when(mapper.toDTO(product)).thenReturn(productDto);
 
-        var savedProductDTO = service.saveProduct(productDTO);
+        var savedProductDto = service.saveProduct(new CreateProductRequestDto(productDto.name(), productDto.price(),
+                List.of(mockFile)));
 
-        assertThat(savedProductDTO).isEqualTo(productDTO);
+        assertThat(savedProductDto).isEqualTo(productDto); // não vai ser por causa do status
     }
 
     @Test
     void productService_getOneProduct_returnProduct() {
-        var id = UUID.randomUUID();
+        when(repository.findById(fixedUUID)).thenReturn(Optional.of(product));
+        when(mapper.toDTO(product)).thenReturn(productDto);
 
-        when(repository.findById(id)).thenReturn(Optional.of(product));
-        when(mapper.toDTO(product)).thenReturn(productDTO);
+        var serviceFindOneProduct = service.getOneProduct(fixedUUID);
 
-        var serviceFindOneProduct = service.getOneProduct(id);
-
-        assertThat(serviceFindOneProduct).isEqualTo(productDTO);
+        assertThat(serviceFindOneProduct).isEqualTo(productDto);
     }
 
     @Test
     void productService_getOneProduct_throwsRecordNotFoundExt() {
-        var id = UUID.randomUUID();
+        when(repository.findById(fixedUUID)).thenReturn(Optional.empty());
 
-        when(repository.findById(id)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.getOneProduct(id))
+        assertThatThrownBy(() -> service.getOneProduct(fixedUUID))
                 .isInstanceOf(RecordNotFoundExt.class)
-                .hasMessageContaining("Product with id " + id);
+                .hasMessageContaining("Product with id " + fixedUUID);
     }
 
     // deletion method already tested in repository tests
