@@ -40,14 +40,14 @@ public class ControllerAdvice {
     public ResponseEntity<String> handleNullFile(MissingServletRequestPartException e) {
         return ResponseEntity.status(BAD_REQUEST)
                 .contentType(APPLICATION_JSON)
-                .body(String.format("{error: \"missing miltipart param\", field: \"%s\"}", e.getMessage()));
+                .body(String.format("{error: \"missing multipart param\", field: \"%s\"}", e.getMessage()));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<String> handleNullFile(MissingServletRequestParameterException e) {
         return ResponseEntity.status(BAD_REQUEST)
                 .contentType(APPLICATION_JSON)
-                .body(String.format("{error: \"missing miltipart param\", field: \"%s\"}", e.getMessage()));
+                .body(String.format("{error: \"missing multipart param\", field: \"%s\"}", e.getMessage()));
     }
 
     @ExceptionHandler(CustomIOException.class)
