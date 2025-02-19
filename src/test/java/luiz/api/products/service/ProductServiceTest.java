@@ -1,5 +1,6 @@
 package luiz.api.products.service;
 
+import luiz.api.products.bucket.BucketProviderImp;
 import luiz.api.products.dto.CreateProductRequestDto;
 import luiz.api.products.dto.ProductDTO;
 import luiz.api.products.dto.mapper.ProductMapper;
@@ -7,7 +8,6 @@ import luiz.api.products.enums.ProductStatus;
 import luiz.api.products.exceptions.RecordNotFoundExt;
 import luiz.api.products.model.Product;
 import luiz.api.products.repository.ProductRepository;
-import luiz.api.products.utils.Utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +36,7 @@ class ProductServiceTest {
     @Mock
     private ProductMapper mapper;
     @Mock
-    private Utils utils;
+    private BucketProviderImp bucket;
     @InjectMocks
     private ProductService service;
     private Product product;
@@ -58,7 +58,7 @@ class ProductServiceTest {
         );
 
         when(repository.existsByName(any(String.class))).thenReturn(false);
-        when(utils.uploadImage(any(MultipartFile.class), any(String.class))).thenReturn("https://s3.urlaleatoria");
+        when(bucket.uploadImage(any(MultipartFile.class), any(String.class))).thenReturn("https://s3.urlaleatoria");
         when(repository.save(any(Product.class))).thenReturn(product);
         when(mapper.toDTO(product)).thenReturn(productDto);
 

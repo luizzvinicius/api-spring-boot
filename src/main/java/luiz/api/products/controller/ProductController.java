@@ -57,29 +57,11 @@ public class ProductController {
         return ResponseEntity.ok().body(product);
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<String>> listObjects(@RequestParam String folder) {
-        return ResponseEntity.ok(utils.listFiles(folder));
-    }
-
-    @DeleteMapping("/files")
-    public ResponseEntity<Void> listObjects(@RequestBody List<String> urls) {
-        utils.deleteFiles(urls);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/updatefile")
-    public List<String> updateFile(@RequestParam("name") String name,
-                                   @RequestParam("price") double price, @RequestParam List<MultipartFile> productImages) {
-        return utils.updateFiles(productImages, "gatos");
-    }
-
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> updateProduct(
-            @NotNull @PathVariable UUID id,
-            @RequestParam("name") String name,
-            @RequestParam("price") double price,
-            @RequestParam("productImages") List<MultipartFile> productImages
+    public ResponseEntity<ProductDTO> updateProduct(@NotNull @PathVariable UUID id,
+                                                    @RequestParam("name") String name,
+                                                    @RequestParam("price") double price,
+                                                    @RequestParam("productImages") List<MultipartFile> productImages
     ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.updateProduct(id, new UpdateProductDto(name, price, productImages)));

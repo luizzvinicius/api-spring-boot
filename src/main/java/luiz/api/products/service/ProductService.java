@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import luiz.api.products.bucket.BucketProviderImp;
 import luiz.api.products.dto.CreateProductRequestDto;
 import luiz.api.products.dto.ProductDTO;
 import luiz.api.products.dto.ProductPageDTO;
@@ -13,7 +14,6 @@ import luiz.api.products.enums.ProductStatus;
 import luiz.api.products.exceptions.RecordNotFoundExt;
 import luiz.api.products.model.Product;
 import luiz.api.products.repository.ProductRepository;
-import luiz.api.products.utils.Utils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -28,12 +28,12 @@ import java.util.UUID;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-    private final Utils utils;
+    private final BucketProviderImp bucket;
 
-    public ProductService(ProductRepository productRepository, ProductMapper productMapper, Utils utils) {
+    public ProductService(ProductRepository productRepository, ProductMapper productMapper, BucketProviderImp bucket) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
-        this.utils = utils;
+        this.bucket = bucket;
     }
 
     public ProductPageDTO getAllProducts(@PositiveOrZero int pageNumber, @Positive @Max(100) int qtdProducts) {
@@ -50,7 +50,7 @@ public class ProductService {
         if (productRepository.existsByName(dto.name())) {
             throw new RuntimeException("Product already exists");
         }
-        List<String> urls = dto.imageFile().stream().map(file -> utils.uploadImage(file, dto.name())).toList();
+        List<String> urls = dto.imageFile().stream().map(file -> bucket.uploadImage(file, dto.name())).toList();
         var savedProduct = productRepository.save(new Product(dto.name(), dto.price(), urls));
         return productMapper.toDTO(savedProduct);
     }
@@ -64,7 +64,7 @@ public class ProductService {
     @Transactional
     public ProductDTO updateProduct(UUID id, @Valid UpdateProductDto dto) {
         return productRepository.findById(id).map(p -> {
-            List<String> updatedImages = utils.updateFiles(dto.productImages(), dto.name());
+            List<String> updatedImages = bucket.updateFiles(dto.productImages(), dto.name());
             p.setName(dto.name());
             p.setPrice(dto.price());
             p.setImagesUrl(updatedImages);
@@ -77,7 +77,7 @@ public class ProductService {
         productRepository.findById(id).ifPresentOrElse(
                 p -> {
                     productRepository.deleteProductImages(id);
-                    utils.deleteFiles(p.getImagesUrl());
+                    bucket.deleteFiles(p.getImagesUrl());
                 },
                 () -> {
                     throw new RecordNotFoundExt("Product with id " + id);

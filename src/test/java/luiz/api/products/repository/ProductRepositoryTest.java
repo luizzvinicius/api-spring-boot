@@ -39,11 +39,11 @@ class ProductRepositoryTest {
     @Test
     @DisplayName("Must get one Product successfully")
     void findOneProduct() {
-        productRepository.save(
+        var saved = productRepository.save(
                 new Product(fixedUUID, "Iphone 14", 2000.0, List.of("https://s3.urlaleatoria"), ProductStatus.ACTIVE)
         );
 
-        var result = productRepository.findById(fixedUUID);
+        var result = productRepository.findById(saved.getId());
 
         assertThat(result).isPresent();
     }
@@ -66,7 +66,6 @@ class ProductRepositoryTest {
         );
         productRepository.saveAll(pageProducts);
         var pgRequest = PageRequest.of(0, pageProducts.size());
-//        Page<Product> page = new PageImpl<>(pageProducts, pgRequest, pageProducts.size());
 
         Page<Product> findAllProductByStatusEquals = productRepository.findAllProductByStatusEquals(ProductStatus.ACTIVE, pgRequest);
 
