@@ -106,6 +106,6 @@ public class ControllerAdvice {
         }
 
         return ResponseEntity.status(BAD_REQUEST).contentType(APPLICATION_JSON)
-                .body(String.format("{error: \"BAD_REQUEST\", message: \"%s should be of type %s\"", name, types[types.length - 1]));
+                .body(String.format("{error: \"BAD_REQUEST\", message: \"%s should be of type %s\"}", name, types[types.length - 1]));
     }
 }
