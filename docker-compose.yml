@@ -1,0 +1,23 @@
+services:
+  api:
+    image: luizvinicius/api-spring-produtos:1
+    container_name: api-spring-produtos
+    env_file:
+      - .env
+    environment:
+      db_url: "jdbc:postgresql://postgres:5432/products_api"
+      password: "postgres123"
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+  db:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: "products_api"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres123"
+    ports:
+      - "5432:5432"
